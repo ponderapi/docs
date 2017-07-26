@@ -145,6 +145,10 @@ definitions:
         type: "string"
       zip_code:
         type: "string"
+      lat:
+        type: "integer"
+      lng:
+        type: "integer"
       kids:
         type: "string"
         description: "This will be replaced by a new parameter soon (have_kids: y/n)"

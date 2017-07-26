@@ -1,0 +1,280 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "Ponder App API"
+host: "spritzr2-dev.herokuapp.com"
+basePath: "/api/v1.0"
+
+schemes:
+- "http"
+
+paths:
+  /game/dailymatches/:
+    get:
+      tags: 
+      - "Game"
+      summary: "Get daily 5 results for a given user"
+      produces: 
+      - "application/json"
+      parameters: 
+      - in: "body"
+        name: "device_token"
+        schema: 
+          $ref: "#/definitions/DeviceParam"
+          
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            #type: "object"
+            items:
+              $ref: "#/definitions/DatersList"
+              
+  /profile:
+    post:
+      tags:
+      - "profile"
+      summary: "Add a new pet to the store"
+      description: ""
+      operationId: "addPet"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Pet object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/Pet"
+      responses:
+        405:
+          description: "Invalid input"
+
+    get:
+      tags:
+      - "profile"
+      summary: "Finds Pets by status"
+      description: "Multiple status values can be provided with comma separated strings"
+      operationId: "findPetsByStatus"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "user-id"
+        in: "query"
+        description: "Status values that need to be considered for filter"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Pet"
+        400:
+          description: "Invalid status value"
+          
+  /profile/{user-id}:
+    get:
+      tags:
+      - "profile"
+      summary: "Finds Pets by status"
+      description: "Multiple status values can be provided with comma separated strings"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "user-id"
+        in: "path"
+        description: "Status values that need to be considered for filter"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Pet"
+        400:
+          description: "Invalid status value"
+
+  /sync:
+    get:
+      tags:
+      - "sync"
+      summary: "Finds Pets by status"
+      description: "Multiple status values can be provided with comma separated strings"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Pet"
+        400:
+          description: "Invalid status value"
+
+
+definitions:
+  DeviceParam:
+    type: "object"
+    properties:
+      device_token:
+        type: "string"
+        
+  Dater:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      gender:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+      in_common:
+        type: "string"
+      city:
+        type: "string"
+      state:
+        type: "string"
+      zip_code:
+        type: "string"
+      kids:
+        type: "string"
+        description: "This will be replaced by a new parameter soon (have_kids: y/n)"
+
+  DatersList: 
+    type: "object"
+    properties:
+      num_matches:
+        type: "integer"
+      possible_matches:
+        type: "array"
+        items:
+          $ref: "#/definitions/Dater" 
+          
+        
+  Order:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      petId:
+        type: "integer"
+        format: "int64"
+      quantity:
+        type: "integer"
+        format: "int32"
+      shipDate:
+        type: "string"
+        format: "date-time"
+      status:
+        type: "string"
+        description: "Order Status"
+        enum:
+        - "placed"
+        - "approved"
+        - "delivered"
+      complete:
+        type: "boolean"
+        default: false
+    xml:
+      name: "Order"
+  Category:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+    xml:
+      name: "Category"
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      userStatus:
+        type: "integer"
+        format: "int32"
+        description: "User Status"
+    xml:
+      name: "User"
+  Tag:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+    xml:
+      name: "Tag"
+  Pet:
+    type: "object"
+    required:
+    - "name"
+    - "photoUrls"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      category:
+        $ref: "#/definitions/Category"
+      name:
+        type: "string"
+        example: "doggie"
+      photoUrls:
+        type: "array"
+        xml:
+          name: "photoUrl"
+          wrapped: true
+        items:
+          type: "string"
+      tags:
+        type: "array"
+        xml:
+          name: "tag"
+          wrapped: true
+        items:
+          $ref: "#/definitions/Tag"
+      status:
+        type: "string"
+        description: "pet status in the store"
+        enum:
+        - "available"
+        - "pending"
+        - "sold"
+    xml:
+      name: "Pet"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"

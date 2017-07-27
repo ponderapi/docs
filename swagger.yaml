@@ -30,6 +30,19 @@ paths:
             #type: "object"
             items:
               $ref: "#/definitions/DatersList"
+    post:
+      summary: "Pick a daily match"
+      parameters:
+      - in: "body"
+        name: "device_token"
+        schema:
+          $ref: "#/definitions/DeviceParam"
+      responses:
+        200:
+          description: "successful operation (success and message fields contain the details)"
+          schema:
+            items:
+              $ref: "#/definitions/SimpleOperation"
 
   /game/matchesmade/:
     get:
@@ -49,21 +62,6 @@ paths:
           schema:
             items:
               $ref: "#/definitions/MatchesMade"
-              
-    post:
-      summary: "Pick a daily match"
-      parameters:
-      - in: "body"
-        name: "device_token"
-        schema:
-          $ref: "#/definitions/DailyMatchPick"
-          
-      responses:
-        200:
-          description: "successful operation (success and message fields contain the details)"
-          schema:
-            items:
-              $ref: "#/definitions/SimpleOperation"
 
 
 definitions:
@@ -81,16 +79,6 @@ definitions:
     properties:
       device_token:
         type: "string"
-
-  DailyMatchPick:
-    type: "object"
-    properties:
-      device_token:
-        type: "string"
-      dater_id:
-        type: "integer"
-      direct_suggest:
-        type: "boolean"
 
   Photo:
     type: "object"

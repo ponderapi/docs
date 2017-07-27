@@ -50,10 +50,31 @@ paths:
             items:
               $ref: "#/definitions/MatchesMade"
               
-
+    post:
+      summary: "Pick a daily match"
+      parameters:
+      - in: "body"
+        name: "device_token"
+        schema:
+          $ref: "#/definitions/DeviceParam"
+      responses:
+        200:
+          description: "successful operation (success and message fields contain the details)"
+          schema:
+            items:
+              $ref: "#/definitions/SimpleOperation"
 
 
 definitions:
+  SimpleOperation:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+      message:
+        type: "string"
+        description: "If success is false, this message could be displayed to user as the reason why the action was not performed."
+      
   DeviceParam:
     type: "object"
     properties:
@@ -77,11 +98,21 @@ definitions:
     properties:
       name:
         type: "string"
+      username:
+        type: "string"
       gender:
         type: "string"
         enum:
         - "f"
         - "m"
+      gender_interst:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      date_of_birth:
+        type: "string"
       in_common:
         type: "string"
       city:
@@ -117,22 +148,7 @@ definitions:
     properties:
       account_id:
         type: "integer"
-      username:
-        type: "string"
       name:
-        type: "string"
-      gender:
-        type: "string"
-        enum:
-        - "f"
-        - "m"
-      gender_interst:
-        type: "string"
-        enum:
-        - "f"
-        - "m"
-        - "o"
-      date_of_birth:
         type: "string"
       thumbnail:
         type: "object"
@@ -144,8 +160,9 @@ definitions:
       redeemed:
         type: "integer"
       matches:
-        type: "object"
-        items:
+        type: "array"
+        description: "Each item in this list correlates with a dater."
+        items: 
           $ref: "#/definitions/DaterMinimalWithThumb"
           
   MatchesMade:
@@ -158,4 +175,4 @@ definitions:
       groups:
         type: "array"
         items:
-          $ref: "#/definitions/DaterMinimalWithThumb"
+          $ref: "#/definitions/MatchesMadeGroup"

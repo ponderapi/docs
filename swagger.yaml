@@ -56,7 +56,8 @@ paths:
       - in: "body"
         name: "device_token"
         schema:
-          $ref: "#/definitions/DeviceParam"
+          $ref: "#/definitions/DailyMatchPick"
+          
       responses:
         200:
           description: "successful operation (success and message fields contain the details)"
@@ -80,6 +81,16 @@ definitions:
     properties:
       device_token:
         type: "string"
+
+  DailyMatchPick:
+    type: "object"
+    properties:
+      device_token:
+        type: "string"
+      dater_id:
+        type: "integer"
+      direct_suggest:
+        type: "boolean"
 
   Photo:
     type: "object"

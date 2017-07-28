@@ -10,6 +10,26 @@ schemes:
 - "http"
 
 paths:
+
+  /abbreviated_sync/:
+    get:
+      tags:
+      - "Sync"
+      summary: "Get the latest data about the logged in user and their first and second degree friend network"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "device_token"
+        schema:
+          $ref: "#/definitions/DeviceParam"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            items:
+              $ref: "#/definitions/MatchesMade"
+
   /game/dailymatches/:
     get:
       tags: 
@@ -62,7 +82,6 @@ paths:
           schema:
             items:
               $ref: "#/definitions/MatchesMade"
-
 
 definitions:
   SimpleOperation:
@@ -175,3 +194,32 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/MatchesMadeGroup"
+          
+  Sync:
+    type: "object"
+    properties:
+      photos:
+        type: "array"
+        items:
+          $ref: "#/definitions/Photo"
+      recommended_to:
+        type: "array"
+        items: 
+          $ref: "#/definitions/RecommendTo"
+          
+          
+  RecommendTo:
+    type: "object"
+    properties:
+      match_id: 
+        type: "integer"
+      your_approval: 
+        type: "boolean"
+      created_at: 
+        type: "string"
+      is_pulic:
+        type: "boolean"
+      match_maker: 
+        type: "array"
+        items:
+          $ref: "#/definitions/RecommendTo"

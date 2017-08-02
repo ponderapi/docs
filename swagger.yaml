@@ -19,16 +19,17 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
+      - in: "query"
         name: "device_token"
-        schema:
-          $ref: "#/definitions/DeviceParam"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
       responses:
         200:
           description: "successful operation"
           schema:
-            items:
-              $ref: "#/definitions/MatchesMade"
+            type: object
+            $ref: '#/definitions/MatchesMade'
 
   /game/dailymatches/:
     get:
@@ -38,10 +39,11 @@ paths:
       produces: 
       - "application/json"
       parameters: 
-      - in: "body"
+      - in: "query"
         name: "device_token"
-        schema: 
-          $ref: "#/definitions/DeviceParam"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
           
       responses:
         200:
@@ -53,16 +55,16 @@ paths:
     post:
       summary: "Pick a daily match"
       parameters:
-      - in: "body"
+      - in: "query"
         name: "device_token"
-        schema:
-          $ref: "#/definitions/DeviceParam"
+        type: string
       responses:
         200:
           description: "successful operation (success and message fields contain the details)"
           schema:
             items:
               $ref: "#/definitions/SimpleOperation"
+
 
   /game/matchesmade/:
     get:
@@ -72,16 +74,18 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
+      - in: "query"
         name: "device_token"
-        schema:
-          $ref: "#/definitions/DeviceParam"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
       responses:
         200:
           description: "successful operation"
           schema:
             items:
               $ref: "#/definitions/MatchesMade"
+
 
 definitions:
   SimpleOperation:
@@ -92,67 +96,13 @@ definitions:
       message:
         type: "string"
         description: "If success is false, this message could be displayed to user as the reason why the action was not performed."
-      
-  DeviceParam:
-    type: "object"
-    properties:
-      device_token:
-        type: "string"
 
-  Photo:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-      image:
-        type: "string"
-      display_order:
-        type: "integer"
-      flag_count:
-        type: "integer"
-        
-  Dater:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      username:
-        type: "string"
-      gender:
-        type: "string"
-        enum:
-        - "f"
-        - "m"
-      gender_interst:
-        type: "string"
-        enum:
-        - "f"
-        - "m"
-        - "o"
-      date_of_birth:
-        type: "string"
-      in_common:
-        type: "string"
-      city:
-        type: "string"
-      state:
-        type: "string"
-      zip_code:
-        type: "string"
-      lat:
-        type: "integer"
-      lng:
-        type: "integer"
-      kids:
-        type: "string"
-        description: "This will be replaced by a new parameter soon (have_kids: y/n)"
-      photos:
-        type: "array"
-        items:
-          $ref: "#/definitions/Photo"
-        
+  
   DatersList:
     type: "object"
+    required:
+    - num_matches
+    - possible_matches
     properties:
       num_matches:
         type: "integer"
@@ -160,41 +110,8 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/Dater" 
-        
-  DaterMinimalWithThumb:
-    type: "object"
-    properties:
-      account_id:
-        type: "integer"
-      name:
-        type: "string"
-      thumbnail:
-        type: "object"
-        $ref: "#/definitions/Photo"
-  
-  MatchesMadeGroup:
-    type: "object"
-    properties:
-      redeemed:
-        type: "integer"
-      matches:
-        type: "array"
-        description: "Each item in this list correlates with a dater."
-        items: 
-          $ref: "#/definitions/DaterMinimalWithThumb"
-          
-  MatchesMade:
-    type: "object"
-    properties:
-      num_matches:
-        type: "integer"
-      num_groups:
-        type: "integer"
-      groups:
-        type: "array"
-        items:
-          $ref: "#/definitions/MatchesMadeGroup"
-          
+
+
   Sync:
     type: "object"
     properties:
@@ -205,21 +122,543 @@ definitions:
       recommended_to:
         type: "array"
         items: 
-          $ref: "#/definitions/RecommendTo"
-          
-          
-  RecommendTo:
+          $ref: "#/definitions/RecommendedTo"
+  
+  
+  MatchesMade:
     type: "object"
+    required:
+    - cupid_cash_per_match_value
+    - profile
+    - cupid_cash_free_limit
+    - messages
+    - photos
+    - blocked_accounts
+    - recommended_to
+    - friends
+    - groups
+    - status
+    - cupid_cash_withdraw_min
+    - match_maker
     properties:
+      cupid_cash_per_match_value:
+        type: "integer"
+      profile:
+        type: "object"
+        $ref: "#/definitions/Profile"
+      cupid_cash_free_limit:
+        type: "integer"
+      messages:
+        type: "object"
+        $ref: "#/definitions/Message"  
+      photos:
+        type: "array"
+        items:
+          $ref: "#/definitions/Photo"
+      blocked_accounts:
+        type: "array"
+        items:
+          type: "string"
+      recommended_to:
+        type: "array"
+        items:
+          $ref: "#/definitions/RecommendedTo"
+      friends:
+        type: "array"
+        items:
+          $ref: "#/definitions/Friend"
+      groups:
+        type: "array"
+        items:
+          $ref: "#/definitions/MatchesMadeGroup"
+      status:
+        type: "integer"
+      cupid_cash_withdraw_min:
+        type: "integer"
+      match_maker:
+        type: "array"
+        items:
+          $ref: "#/definitions/MatchMaker"
+
+
+  MatchesMadeGroup:
+    type: "object"
+    required:
+    - redeemed
+    - matches
+    properties:
+      redeemed:
+        type: "integer"
+      matches:
+        type: "array"
+        description: "Each item in this list correlates with a dater."
+        items: 
+          $ref: "#/definitions/DaterMinimalWithThumb"
+
+
+  DaterMinimalWithThumb:
+    type: "object"
+    required:
+    - account_id
+    - name
+    - thumbnail
+    properties:
+      account_id:
+        type: "integer"
+      name:
+        type: "string"
+      thumbnail:
+        type: "object"
+        $ref: "#/definitions/Photo"
+
+
+  Profile:
+    type: "object"
+    required:
+    - height
+    - gender_interst
+    - lng
+    - name
+    - religion
+    - school
+    - about
+    - created_at
+    - account
+    - zip_code
+    - gender
+    - political_persuasion
+    - karma_points
+    - faith
+    - relationship_status
+    - smoking
+    - have_kids
+    - cupid_cash
+    - email
+    - reciprocity_points
+    - id
+    - ethnicity
+    - username
+    - state
+    - kids
+    - politics
+    - redeemable_cupid_cash
+    - user_type
+    - occupation
+    - daily_game_suggestions_left
+    - city
+    - account_id
+    - favorite_dates
+    - education
+    - modified_at
+    - daily_game_suggestions_max
+    - facebook_id
+    - relationship_with
+    - date_of_birth
+    - lat
+    - daily_game_suggestion_count
+    properties:
+      ethnicity:
+        type: "string"
+      karma_points:
+        type: "integer"
+      reciprocity_points:
+        type: "integer"
+      id:
+        type: "integer"
+      education:
+        type: "string"
+      account_id:
+        type: "integer"
+      name:
+        type: "string"
+      political_persuasion:
+        type: "string"
+      daily_game_suggestions_max:
+        type: "integer"
+      daily_game_suggestions_left:
+        type: "integer"
+      school:
+        type: "string"
+      username:
+        type: "string"
+      favorite_dates:
+        type: "array"
+        items:
+          type: "string"
+      daily_game_suggestion_count:
+        type: "integer"
+      zip_code:
+        type: "string"
+      religion:
+        type: "string"
+      height:
+        type: "integer"
+      email:
+        type: "string"
+      politics:
+        type: "boolean"
+      modified_at:
+        type: "string"
+      smoking:
+        type: "boolean"
+      redeemable_cupid_cash:
+        type: "integer"
+      city:
+        type: "string"
+      created_at:
+        type: "string"
+      account:
+        type: "integer"  
+      gender_interst:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      state:
+        type: "string"
+      gender:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+      occupation:
+        type: "string"
+      about:
+        type: "string"
+      date_of_birth:
+        type: "string"
+      cupid_cash:
+        type: "integer"
+      relationship_with:
+        type: "string"
+      have_kids:
+        type: "boolean"
+      facebook_id:
+        type: "integer"
+      kids:
+        type: "string"
+        description: "This will be replaced by a new parameter soon (have_kids: y/n)"
+      lat:
+        type: "integer"
+      user_type:
+        type: "string"  
+      relationship_status:
+        type: "string"
+      faith:
+        type: "boolean"
+      lng:
+        type: "integer"        
+
+
+  Photo:
+    type: "object"
+    required:
+    - flag_count
+    - id
+    - image
+    - display_order
+    properties:
+      flag_count:
+        type: "integer"
+      id:
+        type: "integer"
+      image:
+        type: "string"
+      display_order:
+        type: "integer"
+
+  Message:
+    type: "object"
+    required:
+    - invite_friends_reward
+    properties:
+      invite_friends_reward:
+        type: "string"
+
+
+  Friend:
+    type: "object"
+    required:
+    - karma_points
+    - photos
+    - id
+    - favorite_dates
+    - facebook_id
+    - account_id
+    - name
+    - gender
+    - date_of_birth
+    - username
+    - connection_type
+    - gender_interst
+    - user_type
+    properties:
+      karma_points:
+        type: "integer"  
+      photos:
+        type: "array"
+        items:
+          $ref: "#/definitions/Photo"
+      id:
+        type: "integer"  
+      favorite_dates:
+        type: "array"
+        items:
+          type: "string"
+      facebook_id:
+        type: "integer"
+      account_id:
+        type: "integer"
+      name:
+        type: "string"
+      gender:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+      date_of_birth:
+        type: "string"
+      username:
+        type: "string"
+      connection_type:
+        type: "string"
+      gender_interst:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      user_type:
+        type: "string"
+        
+          
+  RecommendedTo:
+    type: "object"
+    required:
+    - dater
+    - match_maker
+    - is_pulic
+    - dater_approval
+    - is_public
+    - created_at
+    - match_id
+    - your_approval
+    properties:
+      dater:
+        type: "object"
+        $ref: "#/definitions/Dater" 
+      match_maker: 
+        type: "array"
+        items:
+          $ref: "#/definitions/MatchMakerInRecommendTo"
+      is_pulic:
+        type: "boolean" 
+      dater_approval:
+        type: "boolean"
+      is_public:
+        type: "boolean"
+      created_at: 
+        type: "string"
       match_id: 
         type: "integer"
       your_approval: 
         type: "boolean"
-      created_at: 
+  
+  
+  Dater:
+    type: "object"
+    required:
+    - ethnicity
+    - karma_points
+    - reciprocity_points
+    - id
+    - education
+    - name
+    - political_persuasion
+    - in_common
+    - school
+    - favorite_dates
+    - zip_code
+    - religion
+    - photos
+    - height
+    - email
+    - politics
+    - smoking
+    - city
+    - created_at
+    - gender_interest
+    - account
+    - gender_interst
+    - state
+    - gender
+    - occupation
+    - about
+    - date_of_birth
+    - cupid_cash
+    - relationship_with
+    - have_kids
+    - kids
+    - lat
+    - user_type
+    - relationship_status
+    - faith
+    - lng
+    properties:
+      ethnicity:
         type: "string"
-      is_pulic:
-        type: "boolean"
-      match_maker: 
+      karma_points:
+        type: "integer"
+      reciprocity_points:
+        type: "integer"
+      id:
+        type: "integer"
+      education:
+        type: "string"
+      name:
+        type: "string"
+      political_persuasion:
+        type: "string"
+      in_common:
+        type: "string"
+      school:
+        type: "string"
+      favorite_dates:
         type: "array"
         items:
-          $ref: "#/definitions/RecommendTo"
+          type: "string"
+      zip_code:
+        type: "string"
+      religion:
+        type: "string"
+      photos:
+        type: "array"
+        items:
+          $ref: "#/definitions/Photo"
+      height:
+        type: "integer"
+      email:
+        type: "string"
+      politics:
+        type: "boolean"
+      smoking:
+        type: "boolean"
+      city:
+        type: "string"
+      created_at:
+        type: "string"
+      gender_interest:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      account:
+        type: "integer"
+      gender_interst:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      state:
+        type: "string"
+      gender:
+        type: "string"
+        enum:
+        - "f"
+        - "m"
+      occupation:
+        type: "string"
+      about:
+        type: "string"
+      date_of_birth:
+        type: "string"
+      cupid_cash:
+        type: "integer"
+      relationship_with:
+        type: "string"
+      have_kids:
+        type: "boolean"
+      kids:
+        type: "string"
+        description: "This will be replaced by a new parameter soon (have_kids: y/n)"
+      lat:
+        type: "number"
+      user_type:
+        type: "string"
+      relationship_status:
+        type: "string"
+      faith:
+        type: "boolean"
+      lng:
+        type: "number"
+          
+          
+  MatchMakerInRecommendTo:
+    type: "object"
+    required:
+    - thumbnail
+    - id
+    - name
+    - match_maker_comments
+    properties:
+      thumbnail: 
+        type: "array"
+        items:
+          $ref: "#/definitions/Thumbnail"
+      name:
+        type: "string"  
+      id:
+        type: "integer"
+      match_maker_comments:
+        type: "string"
+
+
+  Thumbnail:
+    type: "object"
+    required:
+    - flag_count
+    - id
+    - image
+    - display_order
+    properties:
+      flag_count:
+        type: "integer"
+      id:
+        type: "integer"
+      image: 
+        type: "string"
+      display_order: 
+        type: "integer"
+
+
+  MatchMaker:
+    type: "object"
+    required:
+    - dater2_id
+    - dater1_interest
+    - is_pulic
+    - dater1_id
+    - is_public
+    - created_at
+    - match_id
+    - dater2_interest
+    properties:
+      dater2_id:
+        type: "integer"  
+      dater1_interest:
+        type: "boolean"
+      is_pulic:
+        type: "boolean"
+      dater1_id:
+        type: "integer"  
+      is_public:
+        type: "boolean"
+      created_at:
+        type: "string"
+      match_id:
+        type: "integer"  
+      dater2_interest:
+        type: "boolean"

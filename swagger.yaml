@@ -11,10 +11,25 @@ schemes:
 
 paths:
 
+  /app_init/:
+    post:
+      tags:
+      - "Application"
+      summary: "Init application"
+      parameters:
+      - in: "body"
+        name: "app_init_request"
+        required: true
+        schema:
+          $ref: "#/definitions/AppInitRequest"
+      responses:
+        200:
+          description: "successful operation"
+
   /abbreviated_sync/:
     get:
       tags:
-      - "Sync"
+      - "Application"
       summary: "Get the latest data about the logged in user and their first and second degree friend network"
       produces:
       - "application/json"
@@ -29,7 +44,112 @@ paths:
           description: "successful operation"
           schema:
             type: object
-            $ref: '#/definitions/MatchesMade'
+            $ref: '#/definitions/Sync'
+
+  /account/:
+    post:
+      tags:
+      - "Account"
+      summary: "Create a new account, register a new device with an existing account"
+      parameters:
+      - in: "body"
+        name: "account_request"
+        required: true
+        schema:
+          $ref: "#/definitions/AccountRequest"
+      responses:
+        200:
+          description: "successful operation"
+    get:
+      tags: 
+      - "Account"
+      summary: "Retrieve information about an existing account"
+      produces: 
+      - "application/json"
+      parameters: 
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      responses:
+        200:
+          description: "successful operation"
+
+  /account/flag/:
+    post:
+      tags:
+      - "Account"
+      summary: "Report an account that may be violating the Spritzr terms of service"
+      parameters:
+      - in: "body"
+        name: "account_report_request"
+        required: true
+        schema:
+          $ref: "#/definitions/AccountReportRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /account/block/:
+    post:
+      tags:
+      - "Account"
+      summary: "Block person by ID"
+      parameters:
+      - in: "body"
+        name: "account_block_request"
+        required: true
+        schema:
+          $ref: "#/definitions/AccountBlockRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /cupid_cash/activity/:
+    post:
+      tags:
+      - "Cupid cash"
+      summary: "Get the latest Cupid Cash change history"
+      parameters:
+      - in: "body"
+        name: "cupid_cash_change_history_request"
+        required: true
+        schema:
+          $ref: "#/definitions/DeviceToken"
+      responses:
+        200:
+          description: "successful operation"
+
+  /cupid_cash/redeem/:
+    post:
+      tags:
+      - "Cupid cash"
+      summary: "Cash Out"
+      parameters:
+      - in: "body"
+        name: "cash_out_request" 
+        required: true
+        schema:
+          $ref: "#/definitions/CashOutRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /cupid_cash/buy/:
+    post:
+      tags:
+      - "Cupid cash"
+      summary: "Buy Cupid Cash"
+      parameters:
+      - in: "body"
+        name: "buy_cupid_cash_request"
+        required: true
+        schema:
+          $ref: "#/definitions/DeviceToken"
+      responses:
+        200:
+          description: "successful operation"
 
   /game/dailymatches/:
     get:
@@ -44,7 +164,6 @@ paths:
         type: string
         required: true
         default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
-          
       responses:
         200:
           description: "successful operation"
@@ -55,16 +174,16 @@ paths:
     post:
       summary: "Pick a daily match"
       parameters:
-      - in: "query"
+      - in: "body"
         name: "device_token"
-        type: string
+        schema:
+          $ref: "#/definitions/DeviceToken"
       responses:
         200:
           description: "successful operation (success and message fields contain the details)"
           schema:
             items:
               $ref: "#/definitions/SimpleOperation"
-
 
   /game/matchesmade/:
     get:
@@ -86,8 +205,367 @@ paths:
             items:
               $ref: "#/definitions/MatchesMade"
 
+  /game/users/:
+    get:
+      tags:
+      - "Game"
+      summary: "Get game users"
+      parameters:
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: "query"
+        name: "limit"
+        type: integer
+        default: 100
+      - in: "query"
+        name: "search_lat"
+        type: string
+        default: 40.872660
+      - in: "query"
+        name: "search_lng"
+        type: string
+        default: -73.971162
+      - in: "query"
+        name: "friends_only"
+        type: boolean
+      responses:
+        200:
+          description: "successful operation"
+
+  /game/search_potential_matches/:
+    get:
+      tags:
+      - "Game"
+      summary: "Search potential matches for invitable user"
+      parameters:
+      - in: query
+        name: device_token
+        type: string
+        required: true
+        maxLength: 40
+        minLength: 40
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: query
+        name: gender
+        required: true
+        type: string
+        enum:
+          - "f"
+          - "m"
+        default: "m"
+      - in: query
+        name: age
+        type: integer
+        required: true
+        default: 25  
+      - in: query
+        name: gender_interest
+        required: true
+        type: string
+        enum:
+          - "f"
+          - "m"
+          - "o"
+        default: "f"  
+      - in: query
+        name: lat
+        required: true
+        type: string
+        default: 40.872660
+      - in: query
+        name: lng
+        required: true
+        type: string
+        default: -73.971162
+      - in: query
+        name: limit
+        type: integer
+        maximum: 100
+        default: 100
+      responses:
+        200:
+          description: "successful operation"
+
+  /game/users/{account_id}/potential_matches/:
+    get:
+      tags:
+      - "Game"
+      summary: "Get potential matches of user by ID"
+      parameters:
+      - in: path
+        name: account_id
+        type: string
+        required: true
+        default: 1234
+      - in: query
+        name: device_token
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: query
+        name: limit
+        type: integer
+        maximum: 100
+        default: 100
+      responses:
+        200:
+          description: "successful operation"
+
+  /game/recommend/:
+    post:
+      tags:
+      - "Game"
+      summary: "Recommend person to a dater"
+      parameters:
+      - in: "body"
+        name: "game_recommend_request"
+        required: true
+        schema:
+          $ref: "#/definitions/GameRecommendRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /group/join/:
+    post:
+      tags:
+      - "Group"
+      summary: "Join the specified matchmaking group"
+      parameters:
+      - in: "body"
+        name: "group_join_request"
+        required: true
+        schema:
+          $ref: "#/definitions/GroupJoinRequest"
+      responses:
+        200:
+          description: "successful operation"
+  
+  /group/daters/:
+    get:
+      tags:
+      - "Group"
+      summary: "Get group daters"
+      parameters:
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: "query"
+        name: "group_id"
+        type: integer
+        required: true
+        default: 10
+      - in: "query"
+        name: "limit"
+        type: integer
+        maximum: 100
+        default: 100
+      responses:
+        200:
+          description: "successful operation"       
+
+  /group/daters/potential_matches/:
+    get:
+      tags:
+      - "Group"
+      summary: "Get group potential matches"
+      parameters:
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: "query"
+        name: "group_id"
+        type: integer
+        required: true
+      - in: "query"
+        name: "member_id"
+        type: integer
+        required: true
+      - in: "query"
+        name: "limit"
+        type: integer
+        maximum: 100
+        default: 100
+      responses:
+        200:
+          description: "successful operation"     
+
+  /recommend/:
+    post:
+      tags:
+      - "Matchmaking"
+      summary: "Make a match suggestion between two users"
+      parameters:
+      - in: "body"
+        name: "recommend_request"
+        required: true
+        schema:
+          $ref: "#/definitions/RecommendRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /send_message/:
+    post:
+      tags:
+      - "Messages"
+      summary: "Send a message"
+      parameters:
+      - in: "body"
+        name: "send_message_request"
+        required: true
+        schema:
+          $ref: "#/definitions/SendMessageRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /profile/{account_id}/:
+    get:
+      tags:
+      - "Profile"
+      summary: "Get person profile by ID"
+      parameters:
+      - in: "path"
+        name: "account_id"
+        type: string
+        required: true
+        default: 1234
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      responses:
+        200:
+          description: "successful operation"
+
+  /profile/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Update the information on a profile"
+      parameters:
+      - in: "body"
+        name: "update_profile_request"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateProfileRequest"
+      responses:
+        200:
+          description: "successful operation"
+  
+  /upload_pic/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Submit a new photo to be displayed on your profile"
+      produces:
+      - "application/x-www-form-urlencoded"
+      parameters:
+      - in: query
+        name: device_token
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      - in: "body"
+        name: "file"
+        required: true
+        schema:
+          $ref: "#/definitions/File"
+      - in: query
+        name: display_order
+        type: integer
+      responses:
+        200:
+          description: "successful operation"
+
+  /profile_photos/delete/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Delete a photo from the profile"
+      parameters:
+      - in: "body"
+        name: "delete_photo_request"
+        required: true
+        schema:
+          $ref: "#/definitions/DeletePhotoRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /profile_photos/reorder/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Change the order in which the photos on the profile will appear"
+      parameters:
+      - in: "body"
+        name: "reorder_photo_request"
+        required: true
+        schema:
+          $ref: "#/definitions/ReorderPhotoRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /indicate/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Submit a yes or no decision on a match suggestion"
+      parameters:
+      - in: "body"
+        name: "indicate_suggestion_request"
+        required: true
+        schema:
+          $ref: "#/definitions/IndicateSuggestionRequest"
+      responses:
+        200:
+          description: "successful operation"
+
+  /friend_request/:
+    post:
+      tags:
+      - "Profile"
+      summary: "Request to become friends with the listed users"
+      parameters:
+      - in: "body"
+        name: "friend_request"
+        required: true
+        schema:
+          $ref: "#/definitions/FriendRequest"
+      responses:
+        200:
+          description: "successful operation"
+    get:
+      tags: 
+      - "Profile"
+      summary: "Get the list of users with whom the logged in user has requested to become friends"
+      parameters: 
+      - in: "query"
+        name: "device_token"
+        type: string
+        required: true
+        default: da74d3788e22f21d99f6f864f25f3bf77d466ec7
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            #type: "object"
+            items:
+              $ref: "#/definitions/FriendRequest"
 
 definitions:
+
   SimpleOperation:
     type: "object"
     properties:
@@ -112,7 +590,7 @@ definitions:
           $ref: "#/definitions/Dater" 
 
 
-  Sync:
+  MatchesMade:
     type: "object"
     properties:
       photos:
@@ -125,7 +603,160 @@ definitions:
           $ref: "#/definitions/RecommendedTo"
   
   
-  MatchesMade:
+  AppInitRequest:
+    type: object
+    required:
+    - os
+    - version
+    properties:
+      accsount_id:
+        type: string
+      version:
+        type: string
+
+
+  AccountRequest:
+    type: "object"
+    required:
+    - username
+    - facebook_id
+    - access_token
+    properties:
+      username:
+        type: "string"
+        description: "The user’s email address. Probably retrieved from the Facebook API"
+      facebook_id:
+        type: "string"
+        description: "The user’s Facebook account ID as retrieved from the Facebook API"
+      access_token:
+        type: "string"
+        description: "The user’s Facebook access token as retrieved from the Facebook API"
+      device_type:
+        type: "string" 
+      device_os:
+        type: "string"
+      os_version:
+        type: "string"
+      language:
+        type: "string"
+      timezone:
+        type: "string"
+      appsflyer_unique_id:
+        type: "string"
+      referredby_id:
+        type: "string"
+
+
+  AccountReportRequest:
+    type: object
+    required:
+    - account_id
+    - device_token
+    properties:
+      account_id:
+        type: string
+        description: "The account identifier of the user whose account is to be flagged"
+      device_token:
+        type: string
+  
+
+  AccountBlockRequest:
+    type: object
+    required:
+    - blocked_account_id
+    - device_token
+    properties:
+      blocked_account_id:
+        type: string
+      device_token:
+        type: string
+
+
+  DeviceToken:
+    type: object
+    required:
+    - device_token
+    properties:
+      device_token:
+        type: string
+
+
+  CashOutRequest:
+    type: object
+    required:
+    - device_token
+    - payment_email
+    properties:
+      device_token:
+        type: string
+      payment_email:
+        type: string
+
+
+  GameRecommendRequest:
+    type: object
+    required:
+    - dater1
+    - device_token
+    properties:
+      dater1:
+        type: string
+      device_token:
+        type: string
+
+
+  RecommendRequest:
+    type: object
+    required:
+    - for_account_id
+    - friend_id
+    - device_token
+    - referredby_id
+    properties:
+      for_account_id:
+        type: string
+        description: "The account identifier of the first dater being recommended"
+      friend_id:
+        type: string
+        description: "The account identifier of the second dater being recommended"
+      device_token:
+        type: string
+      referredby_id:
+        type: string
+
+
+  GroupJoinRequest:
+    type: object
+    required:
+    - device_token
+    - referrer_campaign
+    properties:
+      device_token:
+        type: string
+      referrer_campaign:
+        type: string
+        description: A string received upon opening Spritzr via a Branch link
+
+
+  SendMessageRequest:
+    type: object
+    required:
+    - device_token
+    - target_account
+    - message
+    properties:
+      device_token:
+        type: string
+      target_account:
+        type: string
+      message:
+        type: string
+      conversation_id:
+        type: string
+        description: "Missing if the message is new"
+
+
+  Sync:
     type: "object"
     required:
     - cupid_cash_per_match_value
@@ -175,10 +806,261 @@ definitions:
         type: "integer"
       cupid_cash_withdraw_min:
         type: "integer"
+      cupid_cash_direct_suggest:
+        type: "integer"
       match_maker:
         type: "array"
         items:
           $ref: "#/definitions/MatchMaker"
+
+
+  UpdateProfileRequest:
+    type: "object"
+    required:
+    - device_token
+    - user_type
+    properties:
+      device_token:
+        type: "string"
+        description: ""
+      user_type:
+        type: "string" 
+        description: "The user type describes what the user is here to do, e.g.: daters can receive match suggestions as well as do matchmaking for others"
+        default: "dater"
+        enum:
+        -	dater
+        -	matchmaker
+      about:
+        type: "string"
+        description: "A description of the user"
+        default: "Don’t be fooled by Sara’s good looks. Even though she’s as pretty as a peach, she’s as sneaky as a fox. Gone unnoticed, she loves to curl up on the sofa with a good bone. Her ideal date would be a tall strong labrador lathered in peanut butter."
+      date_of_birth:
+        type: "string"
+        description: "The date the user was born"
+        default: "1991-12-31"
+      zip_code:
+        type: "string"
+        description: "Where the user is located in the format of a zip code"
+        default: "01234"
+      lat:
+        type: "string"
+        description: "Where the user is located by latitude"
+        default: "32.76542"
+      lng:
+        type: "string" 
+        description: "Where the user is located by longitude"
+        default: "-117.196407"
+      gender_interst:
+        type: "string"
+        description: "The gender(s) the user is interested in being matched with"
+        default: "f"
+        enum:
+        - "f"
+        - "m"
+        - "o"
+      gender:
+        type: "string"
+        description: "The gender the user identifies with"
+        default: "m"
+        enum:
+        - "f"
+        - "m"
+      height:
+        type: "string"
+        description: "First digit is feet, second and third digits are inches. May range from 4’0” to 6’11”"
+        default: "611"
+      smoking:
+        type: "string"
+        description: "Whether the user smokes"
+        default: "false"
+        enum:
+        - "true"
+        - "false"
+      faith:
+        type: "string"
+        description: "True for important, false for not important"
+        default: "false"
+        enum:
+        - "true"
+        - "false"
+      religion:
+        type: "string"
+        description: "Religion"
+        default: "Buddhist"
+      politics:
+        type: "string"
+        description: "True for important, false for not important. Not displayed in the iOS app as of this writing"
+        default: "false"
+      political_persuasion:
+        type: "string"
+        description: "Political persuasion"
+        default: "Progressive"
+      kids:
+        type: "string"
+        description: "Integer mapping to respective options: 0 - No kids but open to having them, 1 -	No kids and don’t want them, 2 - Have kids and don’t want more, 3 - Have kids and open to having more. This will be replaced by a new parameter soon (have_kids: y/n)"
+        default: 0
+        minimum: 0
+        maximum: 3
+      education:
+        type: "string"
+        description: "Integer mapping to respective options: 0 - High school graduate, 1 - Some college, 2 - Associate’s degree, 2 - Bachelor’s degree, 4 - Master’s degree, 5 - Doctorate or Professional degree"
+        default: 4
+        minimum: 0
+        maximum: 5
+      school:
+        type: "string"
+        description: "The school the user attends or attended"
+        default: "Harvard Medical"
+      occupation:
+        type: "string"
+        description: "The occupation the user is employed, experienced or trained in"
+        default: "Immigration Lawyer"
+      favorite_dates:
+        type: "array"
+        description: "This variable name is misleading. This actually lists a series of adjectives or interests the user identifies with to describe themselves"
+        items:
+          type: "string"
+          default: "Artist"
+      fb_request_id:
+        type: "string"
+        description: "A token received upon opening Spritzr via a Facebook game request"
+        default: "416687855061262"
+      referrer_campaign:
+        type: "string"
+        description: "A string received upon opening Spritzr via a Branch link"
+        default: "Valentines Email 2016 DC"
+      karma_points:
+        type: "string"
+        description: ""
+      id:
+        type: "string"
+        description: ""
+      account_id:
+        type: "string"
+        description: ""
+      name:
+        type: "string"
+        description: ""
+      username:
+        type: "string"
+        description: ""
+      email:
+        type: "string"
+        description: ""
+      modified_at:
+        type: "string"
+        description: ""
+      redeemable_cupid_cash:
+        type: "string"
+        description: ""
+      city:
+        type: "string"
+        description: ""
+      created_at:
+        type: "string"
+        description: ""
+      account:
+        type: "string"
+        description: ""
+      state:
+        type: "string"
+        description: ""
+      cupid_cash:
+        type: "string"
+        description: ""
+      relationship_with:
+        type: "string"
+        description: ""
+      facebook_id:
+        type: "string"
+        description: ""
+      relationship_status:
+        type: "string"
+        description: ""
+
+
+  File:
+    type: object
+    required:
+    - file
+    properties:
+      file:
+        type: string
+        format: binary
+  
+  
+  DeletePhotoRequest:
+    type: object
+    required:
+    - device_token
+    - photo_id
+    properties:
+      device_token:
+        type: string
+      photo_id:
+        type: string
+        description: The identifier for the photo to be deleted
+
+
+  ReorderPhotoRequest:
+    type: object
+    required:
+    - device_token
+    - photo_ids
+    properties:
+      device_token:
+        type: string
+      photo_ids:
+        type: array
+        description: The identifiers for the photos in the order that they should appear
+        items:
+          type: "string"
+
+
+  IndicateSuggestionRequest:
+    type: object
+    required:
+    - device_token
+    - match_id
+    - like
+    properties:
+      device_token:
+        type: string
+      match_id:
+        type: string
+        description: "The identifier for the suggestion being decided upon"
+      like:
+        type: string
+        description: "True is synonymous with liking the other user or ‘swiping right’. False is the opposite"
+
+
+  FriendRequest:
+    type: object
+    required:
+    - device_token
+    - friend_request
+    properties:
+      device_token:
+        type: string
+      friend_request:
+        type: array
+        items:
+          $ref: "#/definitions/FriendInfo"
+        description: Users with whom the logged in user would like to be friends
+
+
+  FriendInfo:
+    type: object
+    required:
+    - foreign_id
+    - friend_type
+    properties:
+      foreign_id:
+        type: integer
+        description: "The other user’s unique identifier, e.g.: their Facebook identifier"
+      friend_type:
+        type: string
+        description: How the logged in user is connected to the other user
 
 
   MatchesMadeGroup:
@@ -368,6 +1250,7 @@ definitions:
       display_order:
         type: "integer"
 
+
   Message:
     type: "object"
     required:
@@ -431,8 +1314,10 @@ definitions:
         - "o"
       user_type:
         type: "string"
-        
-          
+      is_profile_completeing :
+        type: "boolean"
+
+
   RecommendedTo:
     type: "object"
     required:
@@ -594,8 +1479,8 @@ definitions:
         type: "boolean"
       lng:
         type: "number"
-          
-          
+
+
   MatchMakerInRecommendTo:
     type: "object"
     required:

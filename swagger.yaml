@@ -146,7 +146,7 @@ paths:
         name: "buy_cupid_cash_request"
         required: true
         schema:
-          $ref: "#/definitions/DeviceToken"
+          $ref: "#/definitions/CashPurchaseRequest"
       responses:
         200:
           description: "successful operation"
@@ -680,7 +680,17 @@ definitions:
       device_token:
         type: string
 
-
+  CashPurchaseRequest:
+    type: object
+    required:
+    - device_token
+    - amount_purchased
+    properties:
+      device_token:
+        type: string
+      amount_purchased:
+        type: integer
+        
   CashOutRequest:
     type: object
     required:

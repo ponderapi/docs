@@ -591,7 +591,7 @@ definitions:
       picked_dater_ids:
         type: "array"
         items:
-          type: "string"
+          type: "integer"
           
   DatersList:
     type: "object"
@@ -800,7 +800,6 @@ definitions:
   Sync:
     type: "object"
     required:
-    - cupid_cash_per_match_value
     - profile
     - cupid_cash_free_limit
     - messages
@@ -810,11 +809,12 @@ definitions:
     - friends
     - groups
     - status
+    - cupid_cash_per_match_value
     - cupid_cash_withdraw_min
+    - cupid_cash_extra_daily_pick
+    - cupid_cash_direct_suggest
     - match_maker
     properties:
-      cupid_cash_per_match_value:
-        type: "integer"
       profile:
         type: "object"
         $ref: "#/definitions/Profile"
@@ -845,7 +845,11 @@ definitions:
           $ref: "#/definitions/MatchesMadeGroup"
       status:
         type: "integer"
+      cupid_cash_per_match_value:
+        type: "integer"
       cupid_cash_withdraw_min:
+        type: "integer"
+      cupid_cash_extra_daily_pick:
         type: "integer"
       cupid_cash_direct_suggest:
         type: "integer"

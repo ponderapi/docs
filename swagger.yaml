@@ -170,14 +170,14 @@ paths:
           schema:
             #type: "object"
             items:
-              $ref: "#/definitions/DatersList"
+              $ref: "#/definitions/DailyDatersList"
     post:
       summary: "Pick a daily match"
       parameters:
       - in: "body"
         name: "device_token"
         schema:
-          $ref: "#/definitions/DeviceToken"
+          $ref: "#/definitions/DailyPickDeviceToken"
       responses:
         200:
           description: "successful operation (success and message fields contain the details)"
@@ -575,7 +575,24 @@ definitions:
         type: "string"
         description: "If success is false, this message could be displayed to user as the reason why the action was not performed."
 
-  
+  DailyDatersList:
+    type: "object"
+    required:
+    - num_matches
+    - possible_matches
+    - picked_dater_ids
+    properties:
+      num_matches:
+        type: "integer"
+      possible_matches:
+        type: "array"
+        items:
+          $ref: "#/definitions/Dater" 
+      picked_dater_ids:
+        type: "array"
+        items:
+          type: "string"
+          
   DatersList:
     type: "object"
     required:
@@ -679,6 +696,20 @@ definitions:
     properties:
       device_token:
         type: string
+
+  DailyPickDeviceToken:
+    type: object
+    required:
+    - device_token
+    - dater_id
+    - direct_suggest
+    properties:
+      device_token:
+        type: string
+      dater_id:
+        type: integer
+      direct_suggest:
+        type: boolean
 
   CashPurchaseRequest:
     type: object

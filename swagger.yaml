@@ -11,6 +11,18 @@ schemes:
 
 paths:
 
+  /Profile:
+    post:
+      tags:
+      - "Objects"
+      summary: "Used objects"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            $ref: '#/definitions/Profile'
+
   /app_init/:
     post:
       tags:
